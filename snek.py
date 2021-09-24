@@ -4,33 +4,26 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import sys
+from time import sleep
 print("Imports successful!") # If you see this printed to the console then installation was successful
 
-window_w,window_h= 1000,1000
 
-
-
-def drawsquare(leftx,rightx,bottomy,topy):
-    glBegin(GL_QUADS)
-    glVertex2f(leftx,bottomy)
-    glVertex2f(rightx,bottomy)
-    glVertex2f(rightx,topy)
-    glVertex2f(leftx,topy)
-    glEnd() #finish drawing this square
-
+translation = 0
+w,h= 500,500
 def square():
     glBegin(GL_QUADS)
-    glVertex2f(100, 100)
+    glVertex2f(100, 100) #sets the vertices of the window as it is drawn, along the lines
     glVertex2f(200, 100)
     glVertex2f(200, 200)
     glVertex2f(100, 200)
-    glEnd() #finish drawing this square 
+    glEnd()
 
 def iterate():
-    glViewport(0, 0, window_h, window_w)
+    glViewport(0, 0, 500, 500) #sets the bounds of the rendering window
+    
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    glOrtho(0.0, window_h, 0.0, window_w, 0.0, 1.0)
+    glOrtho(0.0, 500, 0.0, 500, 0.0, 1.0)
     glMatrixMode (GL_MODELVIEW)
     glLoadIdentity()
 
@@ -38,15 +31,37 @@ def showScreen():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
     iterate()
-    glColor3f(228.0, 245.0, 0.0)
+    glColor3f(1.0, 0.0, 3.0)
     square()
     glutSwapBuffers()
 
-glutInit()      #initialize glut
-glutInitDisplayMode(GLUT_RGBA) #set glut window to color
-glutInitWindowSize(window_w, window_h) #resolution of the window
-glutInitWindowPosition(0, 0) #position of the window
-wind = glutCreateWindow("Snek is reale") #title of the window
-glutDisplayFunc(showScreen) #
+def newsquare():
+    glBegin(GL_QUADS)
+    glVertex2f(100+translation, 100+translation) #sets the vertices of the window as it is drawn, along the lines
+    glVertex2f(200+translation, 100+translation) #sets the vertices of the window as it is drawn,
+    glVertex2f(200+translation, 200+translation)
+    glVertex2f(100+translation, 200+translation)
+    glEnd()
+
+def newscreen():
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glLoadIdentity()
+    iterate()
+    glColor3f(1.0, 0.0, 3.0)
+    newsquare()
+    glutSwapBuffers()
+
+
+glutInit()
+glutInitDisplayMode(GLUT_RGBA)
+glutInitWindowSize(500, 500)
+glutInitWindowPosition(0, 0)
+wind = glutCreateWindow("Snake coding practice, moving square no input")
+glutDisplayFunc(showScreen)
 glutIdleFunc(showScreen)
+while translation > 300 :
+    sleep(0.1)
+    glutDisplayFunc(newscreen)
+    translation =+ 1
+glutIdleFunc(newscreen)
 glutMainLoop()
