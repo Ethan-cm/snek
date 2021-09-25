@@ -1,67 +1,56 @@
 
-import OpenGL
+import OpenGL, sys, pygame, time
 from OpenGL.GL import *
-from OpenGL.GLUT import *
 from OpenGL.GLU import *
-import sys
-from time import sleep
-print("Imports successful!") # If you see this printed to the console then installation was successful
+from pygame.locals import *
+from pygame.display import *
+pygame.init()
+print("Imports successful!") # just a check to see if libraries functioned
 
+#colors for items in game
 
-translation = 0
-w,h= 500,500
+yellow = ( 235 , 219 ,52 )
+blue   = ( 52 , 61 , 235 )
+
+vertices = (
+    (1,1),
+    (2,1),
+    (2,2),
+    (1,2)
+)
+
+edges = (
+    (0,1),
+    (1,2),
+    (2,3),
+    (3,0)
+)
+
 def square():
-    glBegin(GL_QUADS)
-    glVertex2f(100, 100) #sets the vertices of the window as it is drawn, along the lines
-    glVertex2f(200, 100)
-    glVertex2f(200, 200)
-    glVertex2f(100, 200)
+    glBegin(GL_LINES)
+    for edge in edges:
+        for vertex in edge:
+            glVertex2fv(vertices[vertex])
     glEnd()
 
-def iterate():
-    glViewport(0, 0, 500, 500) #sets the bounds of the rendering window
+
+def main():
+
+    display = (1000,1000) #initializing 
+    window  = pygame.display.set_mode(display, DOUBLEBUF|OPENGL) #initialize screen with double buffering and opengl
+    gluPerspective(40, display[0] / display[1], 1, 10)
     
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    glOrtho(0.0, 500, 0.0, 500, 0.0, 1.0)
-    glMatrixMode (GL_MODELVIEW)
-    glLoadIdentity()
+    glTranslatef(0,0,-5)
+    color = (255,0,0)
 
-def showScreen():
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glLoadIdentity()
-    iterate()
-    glColor3f(1.0, 0.0, 3.0)
-    square()
-    glutSwapBuffers()
+    while 1:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit
+                quit()
 
-def newsquare():
-    glBegin(GL_QUADS)
-    glVertex2f(100+translation, 100+translation) #sets the vertices of the window as it is drawn, along the lines
-    glVertex2f(200+translation, 100+translation) #sets the vertices of the window as it is drawn,
-    glVertex2f(200+translation, 200+translation)
-    glVertex2f(100+translation, 200+translation)
-    glEnd()
+        glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT)
+        square()
+        pygame.display.flip()
 
-def newscreen():
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glLoadIdentity()
-    iterate()
-    glColor3f(1.0, 0.0, 3.0)
-    newsquare()
-    glutSwapBuffers()
-
-
-glutInit()
-glutInitDisplayMode(GLUT_RGBA)
-glutInitWindowSize(500, 500)
-glutInitWindowPosition(0, 0)
-wind = glutCreateWindow("Snake coding practice, moving square no input")
-glutDisplayFunc(showScreen)
-glutIdleFunc(showScreen)
-while translation > 300 :
-    sleep(0.1)
-    glutDisplayFunc(newscreen)
-    translation =+ 1
-glutIdleFunc(newscreen)
-glutMainLoop()
+main()
