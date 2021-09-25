@@ -35,22 +35,22 @@ def square():
 
 
 def main():
-
+    #pygame.init()
     display = (1000,1000) #initializing 
     window  = pygame.display.set_mode(display, DOUBLEBUF|OPENGL) #initialize screen with double buffering and opengl
-    gluPerspective(40, display[0] / display[1], 1, 10)
-    
-    glTranslatef(0,0,-5)
-    color = (255,0,0)
+    gluPerspective(45, display[0] / display[1], 1, 10)   
+    glTranslatef(0,0,-5) #move the "camera" back
 
     while 1:
-        for event in pygame.event.get():
+        for event in pygame.event.get(): #if x is clicked exit program
             if event.type == pygame.QUIT:
                 pygame.quit
                 quit()
 
-        glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT) #clear the screen of color as well as positional data
         square()
-        pygame.display.flip()
+        glTranslatef(-0.1,0,0)
+        pygame.time.delay(100)
+        pygame.display.flip() #flip the frame from the previously drawn one to the just now added one in the buffer
 
 main()
