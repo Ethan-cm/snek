@@ -26,8 +26,13 @@ edges = (
     (3,0)
 )
 
+surfaces = ( 0,1,2,3 ) #draw a surface across
+
 def square():
+
     glBegin(GL_QUADS)
+    for surface in surfaces: #initially pointless, will be used later when the snake bends
+        glColor3fv((255,139,69))
     for edge in edges:
         for vertex in edge:
             glVertex2fv(vertices[vertex])
@@ -35,11 +40,11 @@ def square():
 
 
 def main():
-    #pygame.init()
     display = (1000,1000) #initializing 
     window  = pygame.display.set_mode(display, DOUBLEBUF|OPENGL) #initialize screen with double buffering and opengl
     gluPerspective(45, display[0] / display[1], 1, 10)   
     glTranslatef(0,0,-5) #move the "camera" back
+    glShadeModel(GL_SMOOTH)
     time = 0
     direction = (0,0,0)
     while 1: #### MAIN LOOP ##############################################################################
@@ -59,13 +64,12 @@ def main():
                 if event.key == pygame.K_SPACE:
                     direction = (0,0,0)
 
-        #put input capture here, as the way the object is draw will be dependant on the way the object has been turned
-
-
-
-
-        #main rendering pipe
+        #main rendering loop
+        glClearColor(0, 0, 0, 1) # specifies color for the background
+        glColor3f(255,139,69)
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT) #clear the screen of color as well as positional data
+
+        
         square()
         if time == 0: #at time = 0 we scale our object to the new size 
             glScale(0.5, 0.5, 1)
