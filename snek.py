@@ -8,38 +8,67 @@ pygame.init()
 print("Imports successful!") # just a check to see if libraries functioned
 
 class directions:
-    DOWN = (0,-0.1,0)
-    UP = (0,0.1,0)
-    LEFT = (-0.1,0,0)
-    RIGHT = (0.1,0,0)
+    DOWN = (0,-2,0)
+    UP = (0,2,0)
+    LEFT = (-2,0,0)
+    RIGHT = (2,0,0)
 
-yellow = ( 235 , 219 ,52 )
-blue   = ( 52 , 61 , 235 )
+isscaled = 0
 
-vertices = (
-    (-1,-1),
-    (1,-1),
-    (1,1),
-    (-1,1)
-)
+class variables:
+    yellow = ( 235 , 219 ,52 )
+    blue   = ( 52 , 61 , 235 )
+    isscaled = 0
 
-edges = (
-    (0,1),
-    (1,2),
-    (2,3),
-    (3,0)
-)
+#head vertices and edges
+class snake:
+    vertices = (
+        (-1,-1),
+        (1,-1),
+        (1,1),
+        (-1,1)
+    )
+    edges = (
+        (0,1),
+        (1,2),
+        (2,3),
+        (3,0)
+    )
 
-surfaces = ( 0,1,2,3 ) #draw a surface across
+surfaces = ( 0,1,2,3 ) #draw a surface across the border to allow us to see the map boundary
+
+
+class border:
+    vertices = (
+        (-18,-18),
+        (18,-18),
+        (18,18),
+        (-18,18)
+    )
+    edges = (
+        (0,1),
+        (1,2),
+        (2,3),
+        (3,0)
+    )
 
 def square():
 
     glBegin(GL_QUADS)
     for surface in surfaces: #initially pointless, will be used later when the snake bends
         glColor3fv((255,139,69))
-    for edge in edges:
+    for edge in snake.edges:
         for vertex in edge:
-            glVertex2fv(vertices[vertex])
+            glVertex2fv(snake.vertices[vertex])
+    glEnd()
+    variables.isscaled = initialscaleobjects(variables.isscaled)    #scales the object to 0.1 of its original size, puts the vertices at -0.1,-0.1 to 0.1, 0.1
+   
+def borderdraw():
+
+    glBegin(GL_LINES)
+    for edge in border.edges:
+        for vertex in edge:
+            glVertex2fv(border.vertices[vertex])
     glEnd()
 
 def initialscaleobjects(time):
@@ -47,6 +76,7 @@ def initialscaleobjects(time):
         glScale(0.1, 0.1, 1)
         time = time + 1
         pygame.display.flip()
+        variables.isscaled = 1
         return 1
 
 def movement(direction): #function for
@@ -66,32 +96,51 @@ def movement(direction): #function for
         updatevertices = [0.1,0]
         return updatevertices
 
-#def checkcollision(): #check collision with the window boundary, boundaries at 19.8 positive and negative boundaries
+#def checkcollision(vertex): #check collision with the window boundary, boundaries at 18.1 positive and negative boundaries
     #need to check collosion of 
+ #   if 
 
 def updateheadposition(translationtracker,vertices):
     if translationtracker == [0,-0.1]: #down #reduce the vertices that correspond to 
-            vertices[1] = vertices[1] - 0.1 #y
-            vertices[3] = vertices[3] - 0.1 #y
-            vertices[5] = vertices[5] - 0.1 #y
-            vertices[7] = vertices[7] - 0.1 #y
+            vertices[1] = vertices[1] + directions.DOWN[1] #y
+            vertices[3] = vertices[3] + directions.DOWN[1] #y
+            vertices[5] = vertices[5] + directions.DOWN[1] #y
+            vertices[7] = vertices[7] + directions.DOWN[1] #y
     elif translationtracker == [0,0.1]: #up
-            vertices[1] = vertices[1] + 0.1 #y
-            vertices[3] = vertices[3] + 0.1 #y
-            vertices[5] = vertices[5] + 0.1 #y
-            vertices[7] = vertices[7] + 0.1 #y
+            vertices[1] = vertices[1] + directions.UP[1] #y
+            vertices[3] = vertices[3] + directions.UP[1]  #y
+            vertices[5] = vertices[5] + directions.UP[1]  #y
+            vertices[7] = vertices[7] + directions.UP[1]  #y
     elif translationtracker == [-0.1,0]: #left x coordinates negative increase
-            vertices[0] = vertices[0] - 0.1 #x
-            vertices[2] = vertices[2] - 0.1 #x
-            vertices[4] = vertices[4] - 0.1 #x
-            vertices[6] = vertices[6] - 0.1 #x
+            vertices[0] = vertices[0] + directions.LEFT[0]  #x
+            vertices[2] = vertices[2] + directions.LEFT[0] #x
+            vertices[4] = vertices[4] + directions.LEFT[0] #x
+            vertices[6] = vertices[6] + directions.LEFT[0] #x
     elif translationtracker == [0.1,0]: #right x coordinates positive increase
-            vertices[0] = vertices[0] + 0.1 #x
-            vertices[2] = vertices[2] + 0.1 #x
-            vertices[4] = vertices[4] + 0.1 #x
-            vertices[6] = vertices[6] + 0.1 #x
+            vertices[0] = vertices[0] + directions.RIGHT[0] #x
+            vertices[2] = vertices[2] + directions.RIGHT[0] #x
+            vertices[4] = vertices[4] + directions.RIGHT[0] #x
+            vertices[6] = vertices[6] + directions.RIGHT[0] #x
     return vertices
 
+
+def getdirection(direction):
+    for event in pygame.event.get(): #if x is clicked exit program
+        if event.type == pygame.QUIT: #input capture
+            pygame.quit
+            quit()
+        if event.type == pygame.KEYDOWN: #executes when a key is pressed down,left right or up and changes the direction variable for input to be sent to openGL
+            if event.key == pygame.K_LEFT:
+                direction = directions.LEFT
+            if event.key == pygame.K_RIGHT:
+                direction = directions.RIGHT
+            if event.key == pygame.K_UP:
+                direction = directions.UP
+            if event.key == pygame.K_DOWN:
+                direction = directions.DOWN
+            if event.key == pygame.K_SPACE:
+                direction = (0,0,0)
+    return direction
 
 def main():
     display = (1000,1000) #initializing 
@@ -100,52 +149,33 @@ def main():
     glTranslatef(0,0,-5) #move the "camera" back
     glShadeModel(GL_SMOOTH)
 
-    isscaled = 0 #initialize variables used for the main loop
     direction = (0,0,0)
     translationtrack = [0,0]
     initialvertices = [-0.1,-0.1,0.1,-0.1,0.1,0.1,-0.1,0.1] #keep track of positions of the vertices in the head of the snake, allow for collision detection 
     lastvertices = [0,0,0,0,0,0,0,0]
     vertex = [0,0,0,0,0,0,0,0]
+
     while 1: #### MAIN LOOP ##############################################################################
 
-        for event in pygame.event.get(): #if x is clicked exit program
-            if event.type == pygame.QUIT: #input capture
-                pygame.quit
-                quit()
-            if event.type == pygame.KEYDOWN: #executes when a key is pressed down,left right or up and changes the direction variable for input to be sent to openGL
-                if event.key == pygame.K_LEFT:
-                    direction = directions.LEFT
-                if event.key == pygame.K_RIGHT:
-                    direction = directions.RIGHT
-                if event.key == pygame.K_UP:
-                    direction = directions.UP
-                if event.key == pygame.K_DOWN:
-                    direction = directions.DOWN
-                if event.key == pygame.K_SPACE:
-                    direction = (0,0,0)
 
-        translationtrack = movement(direction)
-        vertex = updateheadposition(translationtrack, initialvertices)
+        direction = getdirection(direction)
+        translationtrack = movement(direction) #move the object and track the direction
+        vertex = updateheadposition(translationtrack, initialvertices) #
 
-        #determined the bounds of the window to be -19.8,-19.8 to 19.8, 19.8
+        #variables.isscaled = initialscaleobjects(variables.isscaled) #testing the function using the class version, works here but not inside function
 
-
-        #if initialvertices != lastvertices:
-        print(initialvertices)
-        #lastvertices = initialvertices
-        #main rendering loop
 
         glClearColor(0, 0, 0, 1) # specifies color for the background
         glColor3f(255,139,69)
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT) #clear the screen of color as well as positional data
 
-        
         square() # rendersquare
-        isscaled = initialscaleobjects(isscaled)    #scales the object to 0.1 of its original size, puts the vertices at -0.1,-0.1 to 0.1, 0.1
-
+        glPushMatrix()
+        #glPopMatrix()
+        borderdraw()
 
         #glTranslatef(direction[0],direction[1],direction[2]) #movement
-        pygame.time.delay(100)
+        pygame.time.delay(250)
         pygame.display.flip() #flip the frame from the previously drawn one to the just now added one in the buffer
 
 
