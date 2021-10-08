@@ -40,10 +40,14 @@ surfaces = ( 0,1,2,3 ) #draw a surface across the border to allow us to see the 
 
 class border:
     vertices = (
-        (-18,-18),
-        (18,-18),
-        (18,18),
-        (-18,18)
+#        (-18,-18),
+#        (18,-18),
+#        (18,18),
+#        (-18,18)
+        (-1,-1),
+        (1,-1),
+        (1,1),
+        (-1,1)
     )
     edges = (
         (0,1),
@@ -70,6 +74,9 @@ def borderdraw():
         for vertex in edge:
             glVertex2fv(border.vertices[vertex])
     glEnd()
+    #glScale(0.1, 0.1, 1)
+    #scaleobjects()
+    #variables.isscaled = initialscaleobjects(variables.isscaled)    #scales the object to 0.1 of its original size, puts the vertices at -0.1,-0.1 to 0.1, 0.1
 
 def initialscaleobjects(time):
     if time == 0: #at time = 0 we scale our object to the new size 
@@ -78,6 +85,10 @@ def initialscaleobjects(time):
         pygame.display.flip()
         variables.isscaled = 1
         return 1
+
+def scaleobjects():
+    glScale(0.1, 0.1, 1)
+    pygame.display.flip()
 
 def movement(direction): #function for
     glTranslatef(direction[0],direction[1],direction[2]) #movement function, defined as such to return a dataset of the current position of the object
@@ -159,22 +170,30 @@ def main():
 
 
         direction = getdirection(direction)
+
         translationtrack = movement(direction) #move the object and track the direction
         vertex = updateheadposition(translationtrack, initialvertices) #
-
-        #variables.isscaled = initialscaleobjects(variables.isscaled) #testing the function using the class version, works here but not inside function
-
 
         glClearColor(0, 0, 0, 1) # specifies color for the background
         glColor3f(255,139,69)
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT) #clear the screen of color as well as positional data
 
         square() # rendersquare
-        glPushMatrix()
-        #glPopMatrix()
+#        glLoadIdentity()
+        glPushMatrix() #
+        glLoadIdentity()
         borderdraw()
+        glPopMatrix()
+        #scaleobjects()
+        #initialscaleobjects(variables.isscaled)
 
-        #glTranslatef(direction[0],direction[1],direction[2]) #movement
+        ######test box
+        #
+        #
+        #
+        #
+        #
+
         pygame.time.delay(250)
         pygame.display.flip() #flip the frame from the previously drawn one to the just now added one in the buffer
 
