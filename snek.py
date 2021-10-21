@@ -13,8 +13,6 @@ class directions:
     LEFT = (-2,0,0)
     RIGHT = (2,0,0)
 
-isscaled = 0
-
 class variables:
     yellow = ( 235 , 219 ,52 )
     blue   = ( 52 , 61 , 235 )
@@ -37,17 +35,32 @@ class snake:
 
 surfaces = ( 0,1,2,3 ) #draw a surface across the border to allow us to see the map boundary
 
+class body: #class that contains all the data and functions for the rendering of the body
+
+
+
+    def __init__(self,vertices): #when initialized pull the initial vertices and append them into the array
+        verticesstructure = []
+        verticesstructure.append(vertices)
+        print("initialized body list")
+    
+    def update(vertices): #function is run every render loop, updates the list of lists of vertices
+        verticesstructure.append(vertices)
+
+    def renderbody(): #function renders the body of the snake using the list of vertices contained within
+        print("incomplete")
+
 
 class border:
     vertices = (
-#        (-18,-18),
-#        (18,-18),
-#        (18,18),
-#        (-18,18)
-        (-1,-1),
-        (1,-1),
-        (1,1),
-        (-1,1)
+        (-18,-18),
+        (18,-18),
+        (18,18),
+        (-18,18)
+#        (-1,-1),
+#        (1,-1),
+#        (1,1),
+#        (-1,1)
     )
     edges = (
         (0,1),
@@ -55,7 +68,6 @@ class border:
         (2,3),
         (3,0)
     )
-
 def square():
 
     glBegin(GL_QUADS)
@@ -74,9 +86,6 @@ def borderdraw():
         for vertex in edge:
             glVertex2fv(border.vertices[vertex])
     glEnd()
-    #glScale(0.1, 0.1, 1)
-    #scaleobjects()
-    #variables.isscaled = initialscaleobjects(variables.isscaled)    #scales the object to 0.1 of its original size, puts the vertices at -0.1,-0.1 to 0.1, 0.1
 
 def initialscaleobjects(time):
     if time == 0: #at time = 0 we scale our object to the new size 
@@ -86,8 +95,8 @@ def initialscaleobjects(time):
         variables.isscaled = 1
         return 1
 
-def scaleobjects():
-    glScale(0.1, 0.1, 1)
+def scaleobjects(x,y,z):
+    glScale(x,y,z)
     pygame.display.flip()
 
 def movement(direction): #function for
@@ -107,9 +116,20 @@ def movement(direction): #function for
         updatevertices = [0.1,0]
         return updatevertices
 
-#def checkcollision(vertex): #check collision with the window boundary, boundaries at 18.1 positive and negative boundaries
-    #need to check collosion of 
- #   if 
+def drawbody(vertex):
+    #drawbody does a few things, we pass in the last vertices to be used in the previous set. Vertex is an array of size 4 with each of the corners of the last movement of the snake
+    #first we take vertex and create a set of 
+    print("incomplete")
+
+
+
+    glBegin() #rendering loop for the parts of the snake. Done over the new vertices used
+    for squares in square: #draw each square consecutively
+        for edge in snake.edges: #needs to be refactored to use the new sets
+            for vertex in edge:
+                glVertex2fv(snake.vertices[vertex])
+    glEnd()
+    
 
 def updateheadposition(translationtracker,vertices):
     if translationtracker == [0,-0.1]: #down #reduce the vertices that correspond to 
@@ -165,6 +185,7 @@ def main():
     initialvertices = [-0.1,-0.1,0.1,-0.1,0.1,0.1,-0.1,0.1] #keep track of positions of the vertices in the head of the snake, allow for collision detection 
     lastvertices = [0,0,0,0,0,0,0,0]
     vertex = [0,0,0,0,0,0,0,0]
+    snakebody = body(vertex)#render the rest of the body
 
     while 1: #### MAIN LOOP ##############################################################################
 
@@ -174,25 +195,15 @@ def main():
         translationtrack = movement(direction) #move the object and track the direction
         vertex = updateheadposition(translationtrack, initialvertices) #
 
+
         glClearColor(0, 0, 0, 1) # specifies color for the background
         glColor3f(255,139,69)
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT) #clear the screen of color as well as positional data
 
-        square() # rendersquare
-#        glLoadIdentity()
-        glPushMatrix() #
-        glLoadIdentity()
-        borderdraw()
-        glPopMatrix()
-        #scaleobjects()
-        #initialscaleobjects(variables.isscaled)
 
-        ######test box
-        #
-        #
-        #
-        #
-        #
+        square() # render the square
+        snakebody.update(vertex)#render the rest of the body
+
 
         pygame.time.delay(250)
         pygame.display.flip() #flip the frame from the previously drawn one to the just now added one in the buffer
