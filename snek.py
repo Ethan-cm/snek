@@ -36,16 +36,18 @@ class snake:
 surfaces = ( 0,1,2,3 ) #draw a surface across the border to allow us to see the map boundary
 
 class body: #class that contains all the data and functions for the rendering of the body
+    verticesstructure = [ [-1, -2,  1, -2,  1, -1,  -1, -1], [-1, -3,  1, -3,  1, -2,  -1, -2] ] #initial placement of the two starting body parts
+    bodylength = 2 #amount of segments the body will have initially, will be increased every time the body is extended
 
+    def update(self, vertices): #function is run every render loop, updates the list of lists of vertices
 
+        intvertices = []
 
-    def __init__(self,vertices): #when initialized pull the initial vertices and append them into the array
-        verticesstructure = []
-        verticesstructure.append(vertices)
-        print("initialized body list")
-    
-    def update(vertices): #function is run every render loop, updates the list of lists of vertices
-        verticesstructure.append(vertices)
+        for element in vertices:
+            intvertices.append(int(element))
+                 #take the new vertices and multiply them by ten, then convert to integers for the iterative process to work
+        self.verticesstructure.append(intvertices)
+        print(self.verticesstructure)
 
     def renderbody(): #function renders the body of the snake using the list of vertices contained within
         print("incomplete")
@@ -185,7 +187,7 @@ def main():
     initialvertices = [-0.1,-0.1,0.1,-0.1,0.1,0.1,-0.1,0.1] #keep track of positions of the vertices in the head of the snake, allow for collision detection 
     lastvertices = [0,0,0,0,0,0,0,0]
     vertex = [0,0,0,0,0,0,0,0]
-    snakebody = body(vertex)#render the rest of the body
+    snakebody = body()#render the rest of the body
 
     while 1: #### MAIN LOOP ##############################################################################
 
