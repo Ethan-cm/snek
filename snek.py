@@ -37,20 +37,37 @@ surfaces = ( 0,1,2,3 ) #draw a surface across the border to allow us to see the 
 
 class body: #class that contains all the data and functions for the rendering of the body
     verticesstructure = [ [-1, -2,  1, -2,  1, -1,  -1, -1], [-1, -3,  1, -3,  1, -2,  -1, -2] ] #initial placement of the two starting body parts
-    bodylength = 2 #amount of segments the body will have initially, will be increased every time the body is extended
+    bodylength = 3 #amount of segments the body will have initially, will be increased every time the body is extended
 
-    def update(self, vertices): #function is run every render loop, updates the list of lists of vertices
 
+    def update(self, vertices,translationtrack): #function is run every render loop, updates the list of lists of vertices
         intvertices = []
+        #print(self.verticesstructure, "self vertices structure")
+        if translationtrack != [0,0]: #if the head is moving we update the vertices
+            for element in vertices:
+                intvertices.append(int(element))
+                    #take the new vertices and multiply them by ten, then convert to integers for the iterative process to work
+            self.verticesstructure.append(intvertices)
+            
+            if self.bodylength == (len(self.verticesstructure)): # if the body length is maintained (food not eaten) then we need to get rid of the first element in the original list to keep the length
+                self.verticesstructure.pop(0)
 
-        for element in vertices:
-            intvertices.append(int(element))
-                 #take the new vertices and multiply them by ten, then convert to integers for the iterative process to work
-        self.verticesstructure.append(intvertices)
-        print(self.verticesstructure)
 
-    def renderbody(): #function renders the body of the snake using the list of vertices contained within
-        print("incomplete")
+        
+
+    def render(self, vertices):
+        #first we change the data into something more easily rendered
+        
+
+
+        glBegin(GL_QUADS)
+        for tupleset in self.verticesstructure: #loop iterates over the number of sets of tuples
+            for edge in self.vertextuplelist: #loop iterates over the 
+                for vertex in edge: #loop iterates over the vertices in the body
+                    glVertex2fv(snake.vertices[vertex])
+        glEnd()
+
+
 
 
 class border:
@@ -118,21 +135,6 @@ def movement(direction): #function for
         updatevertices = [0.1,0]
         return updatevertices
 
-def drawbody(vertex):
-    #drawbody does a few things, we pass in the last vertices to be used in the previous set. Vertex is an array of size 4 with each of the corners of the last movement of the snake
-    #first we take vertex and create a set of 
-    print("incomplete")
-
-
-
-    glBegin() #rendering loop for the parts of the snake. Done over the new vertices used
-    for squares in square: #draw each square consecutively
-        for edge in snake.edges: #needs to be refactored to use the new sets
-            for vertex in edge:
-                glVertex2fv(snake.vertices[vertex])
-    glEnd()
-    
-
 def updateheadposition(translationtracker,vertices):
     if translationtracker == [0,-0.1]: #down #reduce the vertices that correspond to 
             vertices[1] = vertices[1] + directions.DOWN[1] #y
@@ -193,7 +195,6 @@ def main():
 
 
         direction = getdirection(direction)
-
         translationtrack = movement(direction) #move the object and track the direction
         vertex = updateheadposition(translationtrack, initialvertices) #
 
@@ -204,7 +205,7 @@ def main():
 
 
         square() # render the square
-        snakebody.update(vertex)#render the rest of the body
+        snakebody.update(vertex,translationtrack)#render the rest of the body
 
 
         pygame.time.delay(250)
