@@ -12,6 +12,7 @@ class directions:
     UP = (0,2,0)
     LEFT = (-2,0,0)
     RIGHT = (2,0,0)
+    NONE = (0,0,0)
 
 class variables:
     yellow = ( 235 , 219 ,52 )
@@ -42,32 +43,35 @@ class body: #class that contains all the data and functions for the rendering of
 
     def update(self, vertices,translationtrack): #function is run every render loop, updates the list of lists of vertices
         intvertices = []
-        #print(self.verticesstructure, "self vertices structure")
-        if translationtrack != [0,0]: #if the head is moving we update the vertices
+        if translationtrack != [0,0]: #if the head is moving we update the vertices, if stationary do not
             for element in vertices:
                 intvertices.append(int(element))
                     #take the new vertices and multiply them by ten, then convert to integers for the iterative process to work
             self.verticesstructure.append(intvertices)
             
             if self.bodylength == (len(self.verticesstructure)): # if the body length is maintained (food not eaten) then we need to get rid of the first element in the original list to keep the length
-                self.verticesstructure.pop(0)
+                self.verticesstructure.pop(0) 
 
 
-        
-
-    def render(self, vertices):
+    def render(self):
         #first we change the data into something more easily rendered
         
+        vertexstruct = self.verticesstructure   
+        for vertexset in range(len(vertexstruct)):
 
-
-        glBegin(GL_QUADS)
-        for tupleset in self.verticesstructure: #loop iterates over the number of sets of tuples
-            for edge in self.vertextuplelist: #loop iterates over the 
-                for vertex in edge: #loop iterates over the vertices in the body
-                    glVertex2fv(snake.vertices[vertex])
-        glEnd()
-
-
+            tupleform = ( 
+                (vertexstruct[vertexset][0],vertexstruct[vertexset][1]),
+                (vertexstruct[vertexset][2],vertexstruct[vertexset][3]),
+                (vertexstruct[vertexset][4],vertexstruct[vertexset][5]),
+                (vertexstruct[vertexset][6],vertexstruct[vertexset][7])
+            )
+            print(tupleform)
+            glBegin(GL_QUADS)
+            for tupleset in tupleform: #loop iterates over the number of sets of tuples
+               for edge in snake.edges: #loop iterates over the 
+                    for vertex in edge: #loop iterates over the vertices in the body
+                        glVertex2fv(tupleform[vertex])
+            glEnd()
 
 
 class border:
@@ -76,10 +80,7 @@ class border:
         (18,-18),
         (18,18),
         (-18,18)
-#        (-1,-1),
-#        (1,-1),
-#        (1,1),
-#        (-1,1)
+
     )
     edges = (
         (0,1),
@@ -87,6 +88,7 @@ class border:
         (2,3),
         (3,0)
     )
+
 def square():
 
     glBegin(GL_QUADS)
@@ -134,9 +136,12 @@ def movement(direction): #function for
     elif direction == directions.RIGHT: #right
         updatevertices = [0.1,0]
         return updatevertices
+    elif direction == directions.NONE:
+        updatevertices = [0,0]
+        return updatevertices
 
 def updateheadposition(translationtracker,vertices):
-    if translationtracker == [0,-0.1]: #down #reduce the vertices that correspond to 
+    if translationtracker == [0,-0.1]: #change the vertices that correspond to the position of the head in vector space. Really shoddy solution but its readable and thats what I care about at the moment
             vertices[1] = vertices[1] + directions.DOWN[1] #y
             vertices[3] = vertices[3] + directions.DOWN[1] #y
             vertices[5] = vertices[5] + directions.DOWN[1] #y
@@ -174,7 +179,7 @@ def getdirection(direction):
             if event.key == pygame.K_DOWN:
                 direction = directions.DOWN
             if event.key == pygame.K_SPACE:
-                direction = (0,0,0)
+                direction = directions.NONE
     return direction
 
 def main():
@@ -187,16 +192,14 @@ def main():
     direction = (0,0,0)
     translationtrack = [0,0]
     initialvertices = [-0.1,-0.1,0.1,-0.1,0.1,0.1,-0.1,0.1] #keep track of positions of the vertices in the head of the snake, allow for collision detection 
-    lastvertices = [0,0,0,0,0,0,0,0]
     vertex = [0,0,0,0,0,0,0,0]
     snakebody = body()#render the rest of the body
 
     while 1: #### MAIN LOOP ##############################################################################
 
-
         direction = getdirection(direction)
-        translationtrack = movement(direction) #move the object and track the direction
-        vertex = updateheadposition(translationtrack, initialvertices) #
+        translationtrack = movement(direction) #move the object and track the direction it is going in
+        vertex = updateheadposition(translationtrack, initialvertices) #update the position of the head of the snake in vector space
 
 
         glClearColor(0, 0, 0, 1) # specifies color for the background
@@ -206,9 +209,10 @@ def main():
 
         square() # render the square
         snakebody.update(vertex,translationtrack)#render the rest of the body
+        snakebody.render()
 
 
-        pygame.time.delay(250)
+        pygame.time.delay(333)
         pygame.display.flip() #flip the frame from the previously drawn one to the just now added one in the buffer
 
 
