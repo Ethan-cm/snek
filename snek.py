@@ -89,7 +89,13 @@ class border:
         (3,0)
     )
 
-def square():
+def square(vertices):
+    snake.vertices = (
+        (vertices[0],vertices[1]),
+        (vertices[2],vertices[3]),
+        (vertices[4],vertices[5]),
+        (vertices[6],vertices[7])
+    )
 
     glBegin(GL_QUADS)
     for surface in surfaces: #initially pointless, will be used later when the snake bends
@@ -98,7 +104,6 @@ def square():
         for vertex in edge:
             glVertex2fv(snake.vertices[vertex])
     glEnd()
-    #variables.isscaled = initialscaleobjects(variables.isscaled)    #scales the object to 0.1 of its original size, puts the vertices at -0.1,-0.1 to 0.1, 0.1
    
 def borderdraw():
 
@@ -121,7 +126,7 @@ def scaleobjects(x,y,z):
 #    pygame.display.flip()
 
 def movement(direction): #function for
-    glTranslatef(direction[0],direction[1],direction[2]) #movement function, defined as such to return a dataset of the current position of the object
+    #glTranslatef(direction[0],direction[1],direction[2]) #movement function, defined as such to return a dataset of the current position of the object
     updatevertices = [0,0] #xyz
     #logic statement that allows us to maintain an idea of where the head of the snake is positioned. This is used to detect collisions with objects as well as the edges of the screen
     if direction == directions.DOWN: #down
@@ -142,25 +147,25 @@ def movement(direction): #function for
 
 def updateheadposition(translationtracker,vertices):
     if translationtracker == [0,-0.1]: #change the vertices that correspond to the position of the head in vector space. Really shoddy solution but its readable and thats what I care about at the moment
-            vertices[1] = vertices[1] + directions.DOWN[1] #y
-            vertices[3] = vertices[3] + directions.DOWN[1] #y
-            vertices[5] = vertices[5] + directions.DOWN[1] #y
-            vertices[7] = vertices[7] + directions.DOWN[1] #y
+            vertices[1] = vertices[1] - 1 #y
+            vertices[3] = vertices[3] - 1 #y
+            vertices[5] = vertices[5] - 1#y
+            vertices[7] = vertices[7] - 1 #y
     elif translationtracker == [0,0.1]: #up
-            vertices[1] = vertices[1] + directions.UP[1] #y
-            vertices[3] = vertices[3] + directions.UP[1]  #y
-            vertices[5] = vertices[5] + directions.UP[1]  #y
-            vertices[7] = vertices[7] + directions.UP[1]  #y
+            vertices[1] = vertices[1] + 1 #y
+            vertices[3] = vertices[3] + 1  #y
+            vertices[5] = vertices[5] + 1  #y
+            vertices[7] = vertices[7] + 1  #y
     elif translationtracker == [-0.1,0]: #left x coordinates negative increase
-            vertices[0] = vertices[0] + directions.LEFT[0]  #x
-            vertices[2] = vertices[2] + directions.LEFT[0] #x
-            vertices[4] = vertices[4] + directions.LEFT[0] #x
-            vertices[6] = vertices[6] + directions.LEFT[0] #x
+            vertices[0] = vertices[0] - 1  #x
+            vertices[2] = vertices[2] - 1 #x
+            vertices[4] = vertices[4] - 1 #x
+            vertices[6] = vertices[6] - 1 #x
     elif translationtracker == [0.1,0]: #right x coordinates positive increase
-            vertices[0] = vertices[0] + directions.RIGHT[0] #x
-            vertices[2] = vertices[2] + directions.RIGHT[0] #x
-            vertices[4] = vertices[4] + directions.RIGHT[0] #x
-            vertices[6] = vertices[6] + directions.RIGHT[0] #x
+            vertices[0] = vertices[0] + 1 #x
+            vertices[2] = vertices[2] + 1 #x
+            vertices[4] = vertices[4] + 1 #x
+            vertices[6] = vertices[6] + 1 #x
     return vertices
 
 
@@ -207,7 +212,7 @@ def main():
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT) #clear the screen of color as well as positional data
 
 
-        square() # render the square
+        square(vertex) # render the square
         snakebody.update(vertex,translationtrack)#render the rest of the body
         print("Vertex\n",vertex)
         snakebody.render()
