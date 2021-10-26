@@ -37,7 +37,7 @@ class snake:
 surfaces = ( 0,1,2,3 ) #draw a surface across the border to allow us to see the map boundary
 
 class body: #class that contains all the data and functions for the rendering of the body
-    verticesstructure = [ [-1, -2,  1, -2,  1, -1,  -1, -1], [-1, -3,  1, -3,  1, -2,  -1, -2] ] #initial placement of the two starting body parts
+    verticesstructure = [ [-1, -2,  1, -2,  1, -1,  -1, -1], [-1, -4,  1, -4,  1, -2,  -1, -2] ] #initial placement of the two starting body parts
     bodylength = 3 #amount of segments the body will have initially, will be increased every time the body is extended
 
 
@@ -58,20 +58,20 @@ class body: #class that contains all the data and functions for the rendering of
         
         vertexstruct = self.verticesstructure   
         for vertexset in range(len(vertexstruct)):
-
             tupleform = ( 
                 (vertexstruct[vertexset][0],vertexstruct[vertexset][1]),
                 (vertexstruct[vertexset][2],vertexstruct[vertexset][3]),
                 (vertexstruct[vertexset][4],vertexstruct[vertexset][5]),
                 (vertexstruct[vertexset][6],vertexstruct[vertexset][7])
             )
-            print(tupleform)
             glBegin(GL_QUADS)
             for tupleset in tupleform: #loop iterates over the number of sets of tuples
                for edge in snake.edges: #loop iterates over the 
                     for vertex in edge: #loop iterates over the vertices in the body
                         glVertex2fv(tupleform[vertex])
             glEnd()
+            print("tupleform\n",tupleform)
+
 
 
 class border:
@@ -98,7 +98,7 @@ def square():
         for vertex in edge:
             glVertex2fv(snake.vertices[vertex])
     glEnd()
-    variables.isscaled = initialscaleobjects(variables.isscaled)    #scales the object to 0.1 of its original size, puts the vertices at -0.1,-0.1 to 0.1, 0.1
+    #variables.isscaled = initialscaleobjects(variables.isscaled)    #scales the object to 0.1 of its original size, puts the vertices at -0.1,-0.1 to 0.1, 0.1
    
 def borderdraw():
 
@@ -118,7 +118,7 @@ def initialscaleobjects(time):
 
 def scaleobjects(x,y,z):
     glScale(x,y,z)
-    pygame.display.flip()
+#    pygame.display.flip()
 
 def movement(direction): #function for
     glTranslatef(direction[0],direction[1],direction[2]) #movement function, defined as such to return a dataset of the current position of the object
@@ -185,13 +185,13 @@ def getdirection(direction):
 def main():
     display = (1000,1000) #initializing 
     window  = pygame.display.set_mode(display, DOUBLEBUF|OPENGL) #initialize screen with double buffering and opengl
-    gluPerspective(45, display[0] / display[1], 1, 10)  #set the perspective necessary to see everything at a proper plane
-    glTranslatef(0,0,-5) #move the "camera" back
+    gluPerspective(45, display[0] / display[1], 1, 50)  #set the perspective necessary to see everything at a proper plane
+    glTranslatef(0,0,-45) #move the "camera" back
     glShadeModel(GL_SMOOTH)
 
     direction = (0,0,0)
     translationtrack = [0,0]
-    initialvertices = [-0.1,-0.1,0.1,-0.1,0.1,0.1,-0.1,0.1] #keep track of positions of the vertices in the head of the snake, allow for collision detection 
+    initialvertices = [-1,-1,1,-1,1,1,-1,1] #keep track of positions of the vertices in the head of the snake, allow for collision detection 
     vertex = [0,0,0,0,0,0,0,0]
     snakebody = body()#render the rest of the body
 
@@ -209,8 +209,10 @@ def main():
 
         square() # render the square
         snakebody.update(vertex,translationtrack)#render the rest of the body
+        print("Vertex\n",vertex)
         snakebody.render()
-
+        #glLoadIdentity()
+        #scaleobjects(0.01,0.01,1)
 
         pygame.time.delay(333)
         pygame.display.flip() #flip the frame from the previously drawn one to the just now added one in the buffer
