@@ -99,8 +99,8 @@ class food:
         if snake.vertices == self.foodvertices: #if the snake vertices are the same as the food vertices then we can 
             #since we ate the food, we call food.generatefood and then move on
             body.bodylength += 1
+            variables.isfoodgenerated = False
         
-
 class border:
     vertices = (
         (-18,-18),
@@ -244,10 +244,8 @@ def main():
         square(vertex) # render the square
         snakebody.update(vertex,translationtrack)#render the rest of the body
         snakebody.render()
-        print("head", vertex)
-        print("food",snacks.foodvertices)
 
-        pygame.time.delay(300)
+        pygame.time.delay(150)
         pygame.display.flip() #flip the frame from the previously drawn one to the just now added one in the buffer
 
 
