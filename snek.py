@@ -1,9 +1,10 @@
 
-import OpenGL, sys, pygame, time
+import OpenGL, sys, pygame, time, random
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from pygame.locals import *
 from pygame.display import *
+from random import *
 pygame.init()
 print("Imports successful!") # just a check to see if libraries functioned
 
@@ -18,6 +19,7 @@ class variables:
     yellow = ( 235 , 219 ,52 )
     blue   = ( 52 , 61 , 235 )
     isscaled = 0
+    isfoodgenerated = False
 
 #head vertices and edges
 class snake:
@@ -38,7 +40,7 @@ surfaces = ( 0,1,2,3 ) #draw a surface across the border to allow us to see the 
 
 class body: #class that contains all the data and functions for the rendering of the body
     verticesstructure = [ [-1, -2,  1, -2,  1, -1,  -1, -1], [-1, -4,  1, -4,  1, -2,  -1, -2] ] #initial placement of the two starting body parts
-    bodylength = 3 #amount of segments the body will have initially, will be increased every time the body is extended
+    bodylength = 3 #amount of segments the body will have initially, will be increased every time the body is extended.
 
 
     def update(self, vertices,translationtrack): #function is run every render loop, updates the list of lists of vertices
@@ -50,12 +52,13 @@ class body: #class that contains all the data and functions for the rendering of
             self.verticesstructure.append(intvertices)
             
             if self.bodylength == (len(self.verticesstructure)): # if the body length is maintained (food not eaten) then we need to get rid of the first element in the original list to keep the length
-                self.verticesstructure.pop(0) 
+                self.verticesstructure.pop(0)
+            #this only triggers if the body length is not maintained, so it should only trigger once per foot eaten
 
 
     def render(self):
         #first we change the data into something more easily rendered
-        
+        #current bug: this vertex stuct instantly moves to render on the head of the snake. This is not a problem provided when we increase the size of the snake it maintains it size
         vertexstruct = self.verticesstructure   
         for vertexset in range(len(vertexstruct)):
             tupleform = ( 
@@ -70,9 +73,33 @@ class body: #class that contains all the data and functions for the rendering of
                     for vertex in edge: #loop iterates over the vertices in the body
                         glVertex2fv(tupleform[vertex])
             glEnd()
-            print("tupleform\n",tupleform)
 
+class food:
+    foodvertices = []
 
+    def generatefood(self,bodyvertices) -> tuple: #input is the vertices of all of the body      
+        range = [randrange(-17,17,2),randrange(-17,17,2)] # x y coordinate generation of the bottom left vertex
+        self.foodvertices = (
+            (range[0]   , range[1]   ),
+            (range[0]+2 , range[1]   ),
+            (range[0]+2 , range[1]+2 ),
+            (range[0]   , range[1]+2 ), #if food is generated, then save the position of the food into foodvertices. this is needed to render it every time
+        )
+        variables.isfoodgenerated = True
+
+    def renderfood(self) -> None:
+        glBegin(GL_QUADS)
+        glColor4f(255,0,255,1)
+        for edge in snake.edges: #reusing snake.edges as the direction of rendering is always the same. Vertices are what change
+            for vertex in edge:
+                glVertex2fv(self.foodvertices[vertex])
+        glEnd()
+
+    def checkcollision(self):
+        if snake.vertices == self.foodvertices: #if the snake vertices are the same as the food vertices then we can 
+            #since we ate the food, we call food.generatefood and then move on
+            body.bodylength += 1
+        
 
 class border:
     vertices = (
@@ -123,11 +150,9 @@ def initialscaleobjects(time):
 
 def scaleobjects(x,y,z):
     glScale(x,y,z)
-#    pygame.display.flip()
 
 def movement(direction): #function for
-    #glTranslatef(direction[0],direction[1],direction[2]) #movement function, defined as such to return a dataset of the current position of the object
-    updatevertices = [0,0] #xyz
+    updatevertices = [0,0] #xy
     #logic statement that allows us to maintain an idea of where the head of the snake is positioned. This is used to detect collisions with objects as well as the edges of the screen
     if direction == directions.DOWN: #down
         updatevertices = [0,-0.1]
@@ -147,27 +172,26 @@ def movement(direction): #function for
 
 def updateheadposition(translationtracker,vertices):
     if translationtracker == [0,-0.1]: #change the vertices that correspond to the position of the head in vector space. Really shoddy solution but its readable and thats what I care about at the moment
-            vertices[1] = vertices[1] - 1 #y
-            vertices[3] = vertices[3] - 1 #y
-            vertices[5] = vertices[5] - 1#y
-            vertices[7] = vertices[7] - 1 #y
+            vertices[1] = vertices[1] + directions.DOWN[1] #y
+            vertices[3] = vertices[3] + directions.DOWN[1] #y
+            vertices[5] = vertices[5] + directions.DOWN[1] #y
+            vertices[7] = vertices[7] + directions.DOWN[1] #y
     elif translationtracker == [0,0.1]: #up
-            vertices[1] = vertices[1] + 1 #y
-            vertices[3] = vertices[3] + 1  #y
-            vertices[5] = vertices[5] + 1  #y
-            vertices[7] = vertices[7] + 1  #y
+            vertices[1] = vertices[1] + directions.UP[1] #y
+            vertices[3] = vertices[3] + directions.UP[1] #y
+            vertices[5] = vertices[5] + directions.UP[1]  #y
+            vertices[7] = vertices[7] + directions.UP[1]  #y
     elif translationtracker == [-0.1,0]: #left x coordinates negative increase
-            vertices[0] = vertices[0] - 1  #x
-            vertices[2] = vertices[2] - 1 #x
-            vertices[4] = vertices[4] - 1 #x
-            vertices[6] = vertices[6] - 1 #x
+            vertices[0] = vertices[0] + directions.LEFT[0]  #x
+            vertices[2] = vertices[2] + directions.LEFT[0] #x
+            vertices[4] = vertices[4] + directions.LEFT[0] #x
+            vertices[6] = vertices[6] + directions.LEFT[0] #x
     elif translationtracker == [0.1,0]: #right x coordinates positive increase
-            vertices[0] = vertices[0] + 1 #x
-            vertices[2] = vertices[2] + 1 #x
-            vertices[4] = vertices[4] + 1 #x
-            vertices[6] = vertices[6] + 1 #x
+            vertices[0] = vertices[0] + directions.RIGHT[0] #x
+            vertices[2] = vertices[2] + directions.RIGHT[0] #x
+            vertices[4] = vertices[4] + directions.RIGHT[0] #x
+            vertices[6] = vertices[6] + directions.RIGHT[0] #x
     return vertices
-
 
 def getdirection(direction):
     for event in pygame.event.get(): #if x is clicked exit program
@@ -198,28 +222,32 @@ def main():
     translationtrack = [0,0]
     initialvertices = [-1,-1,1,-1,1,1,-1,1] #keep track of positions of the vertices in the head of the snake, allow for collision detection 
     vertex = [0,0,0,0,0,0,0,0]
-    snakebody = body()#render the rest of the body
+    snakebody = body() #declare the body class
+    snacks = food()
 
     while 1: #### MAIN LOOP ##############################################################################
 
         direction = getdirection(direction)
         translationtrack = movement(direction) #move the object and track the direction it is going in
         vertex = updateheadposition(translationtrack, initialvertices) #update the position of the head of the snake in vector space
-
-
+        
+        if variables.isfoodgenerated == False: #if food exists
+            snacks.generatefood(vertex, ) #import the vertices of the head as well as the body in order to check that the food is eaten
+            variables.isfoodgenerated = True
+        snacks.checkcollision()
+        #####RENDERLOOP########
         glClearColor(0, 0, 0, 1) # specifies color for the background
         glColor3f(255,139,69)
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT) #clear the screen of color as well as positional data
 
-
+        snacks.renderfood()
         square(vertex) # render the square
         snakebody.update(vertex,translationtrack)#render the rest of the body
-        print("Vertex\n",vertex)
         snakebody.render()
-        #glLoadIdentity()
-        #scaleobjects(0.01,0.01,1)
+        print("head", vertex)
+        print("food",snacks.foodvertices)
 
-        pygame.time.delay(333)
+        pygame.time.delay(300)
         pygame.display.flip() #flip the frame from the previously drawn one to the just now added one in the buffer
 
 
